@@ -26,7 +26,7 @@ end
 local function OnMerchantShow()
     if handled then return end
     handled = true
-    C_Timer.After(0.2, AutoSellAndRepair)
+    C_Timer.After(0.1, AutoSellAndRepair)
 end
 
 local function OnMerchantClosed()
@@ -34,12 +34,10 @@ local function OnMerchantClosed()
 end
 
 local function OnTradeTimerConfirm()
-    C_Timer.After(0, function()
-        local popup = StaticPopup_FindVisible("CONFIRM_MERCHANT_TRADE_TIMER_REMOVAL")
-        if popup then
-            StaticPopup_OnClick(popup, 1)
-        end
-    end)
+    local popup = StaticPopup_FindVisible("CONFIRM_MERCHANT_TRADE_TIMER_REMOVAL")
+    if popup then
+        StaticPopup_OnClick(popup, 1)
+    end
 end
 
 ----------------------------------------------------------------
