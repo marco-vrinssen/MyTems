@@ -1,4 +1,4 @@
--- Sync auction house and crafting order favorites across all characters
+-- Sync auction house favorites across all characters
 --
 -- Account DB (MyTemsFavoritesDB) is the single source of truth.
 -- Per-character DB (MyTemsFavoritesCharDB) stores a snapshot of what was
@@ -44,6 +44,17 @@ local function SerializeItemKey(itemKey)
     return table.concat(parts, ":")
 end
 
+-- Reconstruct a proper WoW ItemKey from a saved plain table
+
+local function ToItemKey(saved)
+    return C_AuctionHouse.MakeItemKey(
+        saved.itemID or 0,
+        saved.itemLevel or 0,
+        saved.itemSuffix or 0,
+        saved.battlePetSpeciesID or 0
+    )
+end
+
 ----------------------------------------------------------------
 -- Chat notifications
 ----------------------------------------------------------------
@@ -63,6 +74,21 @@ local function Notify(added, displayLink)
     if DEFAULT_CHAT_FRAME then
         DEFAULT_CHAT_FRAME:AddMessage(prefix .. displayLink)
     end
+end
+
+----------------------------------------------------------------
+-- Safe wrapper for SetFavoriteItem
+----------------------------------------------------------------
+
+local function SafeSetFavorite(itemKey, isFavorite)
+    local ok, err = pcall(C_AuctionHouse.SetFavoriteItem, itemKey, isFavorite)
+    if not ok then
+        local key = SerializeItemKey(itemKey)
+        if DEFAULT_CHAT_FRAME then
+            DEFAULT_CHAT_FRAME:AddMessage("|cffff6600[MyTems] Error setting favorite " .. key .. ": " .. tostring(err) .. "|r")
+        end
+    end
+    return ok
 end
 
 ----------------------------------------------------------------
@@ -107,7 +133,7 @@ local function HandleBrowseResult(itemKey)
         local key = SerializeItemKey(itemKey)
         if accountDB.favorites[key] then return end
         syncing = true
-        C_AuctionHouse.SetFavoriteItem(itemKey, false)
+        SafeSetFavorite(itemKey, false)
         syncing = false
         Notify(false, GetItemLink(itemKey))
     end
@@ -122,16 +148,18 @@ local function SyncFavorites()
 
     if not characterDB.initialized then
         local hasAccountData = next(accountDB.favorites) ~= nil
-        syncing = true
 
         if hasAccountData then
             -- Account DB has data: push to character, then enforce via browse
 
-            for key, itemKey in pairs(accountDB.favorites) do
-                C_AuctionHouse.SetFavoriteItem(itemKey, true)
-                characterDB.snapshot[key] = CopyItemKey(itemKey)
-                Notify(true, GetItemLink(itemKey))
+            syncing = true
+            for key, saved in pairs(accountDB.favorites) do
+                local itemKey = ToItemKey(saved)
+                SafeSetFavorite(itemKey, true)
+                characterDB.snapshot[key] = CopyItemKey(saved)
+                Notify(true, GetItemLink(saved))
             end
+            syncing = false
             sessionMode = "enforce"
         else
             -- Account DB is empty: seed it from this character's favorites
@@ -139,7 +167,6 @@ local function SyncFavorites()
             sessionMode = "seed"
         end
 
-        syncing = false
         C_AuctionHouse.SearchForFavorites({})
         return
     end
@@ -151,22 +178,24 @@ local function SyncFavorites()
 
     -- Items in account DB but not in snapshot: added on another character
 
-    for key, itemKey in pairs(accountDB.favorites) do
+    for key, saved in pairs(accountDB.favorites) do
         if not characterDB.snapshot[key] then
-            C_AuctionHouse.SetFavoriteItem(itemKey, true)
-            characterDB.snapshot[key] = CopyItemKey(itemKey)
-            Notify(true, GetItemLink(itemKey))
+            local itemKey = ToItemKey(saved)
+            SafeSetFavorite(itemKey, true)
+            characterDB.snapshot[key] = CopyItemKey(saved)
+            Notify(true, GetItemLink(saved))
             changed = true
         end
     end
 
     -- Items in snapshot but not in account DB: removed on another character
 
-    for key, itemKey in pairs(characterDB.snapshot) do
+    for key, saved in pairs(characterDB.snapshot) do
         if not accountDB.favorites[key] then
-            C_AuctionHouse.SetFavoriteItem(itemKey, false)
+            local itemKey = ToItemKey(saved)
+            SafeSetFavorite(itemKey, false)
             characterDB.snapshot[key] = nil
-            Notify(false, GetItemLink(itemKey))
+            Notify(false, GetItemLink(saved))
             changed = true
         end
     end
