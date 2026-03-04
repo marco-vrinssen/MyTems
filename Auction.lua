@@ -1,11 +1,10 @@
--- Spacebar auction posting and default current expansion filter
+-- Post auctions with spacebar and default to current expansion filter to speed up auction workflow because default UI requires extra clicks
 
 local auctionFrame = CreateFrame("Frame")
 local postEnabled = false
 
-----------------------------------------------------------------
--- Posting
-----------------------------------------------------------------
+
+-- Find visible sell frame and click post button to submit auction because multiple sell frames can be active
 
 local function PostAuction()
     if not postEnabled then return end
@@ -25,9 +24,8 @@ local function PostAuction()
     end
 end
 
-----------------------------------------------------------------
--- Event handlers
-----------------------------------------------------------------
+
+-- Enable current expansion filter to reduce search noise when Blizzard auction UI loads because most trades involve current items
 
 local function OnAddonLoaded(addonName)
     if addonName == "Blizzard_AuctionHouseUI" then
@@ -36,6 +34,9 @@ local function OnAddonLoaded(addonName)
         end
     end
 end
+
+
+-- Bind spacebar to post auction while auction house is open to enable quick posting because mouse clicking is slower
 
 local function OnAuctionHouseShow()
     postEnabled = true
@@ -54,15 +55,17 @@ local function OnAuctionHouseShow()
     auctionFrame:SetFrameStrata("HIGH")
 end
 
+
+-- Unbind spacebar and disable posting when auction house closes to restore default key behavior because posting outside is invalid
+
 local function OnAuctionHouseClosed()
     postEnabled = false
     auctionFrame:SetScript("OnKeyDown", nil)
     auctionFrame:EnableKeyboard(false)
 end
 
-----------------------------------------------------------------
--- Event registration
-----------------------------------------------------------------
+
+-- Register for auction house lifecycle and addon load events to activate features at the right time because timing matters
 
 auctionFrame:RegisterEvent("ADDON_LOADED")
 auctionFrame:RegisterEvent("AUCTION_HOUSE_SHOW")

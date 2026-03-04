@@ -1,4 +1,4 @@
-# MyTems
+# FastItems
 
 WoW addon for streamlined item handling and auction house automation.
 
@@ -9,4 +9,3 @@ WoW addon for streamlined item handling and auction house automation.
 - **Current Expansion Filter** - Defaults auction house search to current expansion
 - **Spacebar Posting** - Quick auction posting with Space key
 - **Instant Looting** - Speeds up looting by collecting all items immediately
-- **Favorites Sync** - Syncs auction house and crafting order favorites across all characters

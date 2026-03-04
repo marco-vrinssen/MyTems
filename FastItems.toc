@@ -1,0 +1,11 @@
+## Interface: 120000
+## Title: FastItems
+## Notes: Auto sell/repair at vendors, quick auction posting, instant looting
+## Author: MIYANKO
+## Version: 1.5.0
+## SavedVariables: FastItemsAcctDB
+## SavedVariablesPerCharacter: FastItemsCharDB
+
+Merchant.lua
+Auction.lua
+Looting.lua
