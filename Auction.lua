@@ -29,9 +29,11 @@ end
 
 local function OnAddonLoaded(addonName)
     if addonName == "Blizzard_AuctionHouseUI" then
-        if AUCTION_HOUSE_DEFAULT_FILTERS then
-            AUCTION_HOUSE_DEFAULT_FILTERS[Enum.AuctionHouseFilter.CurrentExpansionOnly] = true
-        end
+        C_Timer.After(0, function()
+            if AUCTION_HOUSE_DEFAULT_FILTERS then
+                AUCTION_HOUSE_DEFAULT_FILTERS[Enum.AuctionHouseFilter.CurrentExpansionOnly] = true
+            end
+        end)
     end
 end
 
