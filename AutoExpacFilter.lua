@@ -10,9 +10,13 @@ local function HookAuctionHouseFilter()
     if isAuctionHouseHooked then return end
     local searchBar = AuctionHouseFrame.SearchBar
 
+    -- Wrap filter write in pcall to contain taint from spreading to secure Blizzard code because direct table writes taint the execution path
+
     local function applyFilter()
-        searchBar.FilterButton.filters[Enum.AuctionHouseFilter.CurrentExpansionOnly] = true
-        searchBar:UpdateClearFiltersButton()
+        pcall(function()
+            searchBar.FilterButton.filters[Enum.AuctionHouseFilter.CurrentExpansionOnly] = true
+            searchBar:UpdateClearFiltersButton()
+        end)
     end
 
     searchBar:HookScript("OnShow", function() C_Timer.After(0, applyFilter) end)
@@ -27,9 +31,13 @@ local function HookCraftingOrdersFilter()
     local browseBar = ProfessionsCustomerOrdersFrame.BrowseOrders.SearchBar
     local filterDropdown = browseBar.FilterDropdown
 
+    -- Wrap filter write in pcall to contain taint from spreading to secure Blizzard code because direct table writes taint the execution path
+
     local function applyFilter()
-        filterDropdown.filters[Enum.AuctionHouseFilter.CurrentExpansionOnly] = true
-        filterDropdown:ValidateResetState()
+        pcall(function()
+            filterDropdown.filters[Enum.AuctionHouseFilter.CurrentExpansionOnly] = true
+            filterDropdown:ValidateResetState()
+        end)
     end
 
     filterDropdown:HookScript("OnShow", function() C_Timer.After(0, applyFilter) end)

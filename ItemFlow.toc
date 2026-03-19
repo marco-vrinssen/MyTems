@@ -11,4 +11,3 @@ AutoSellRepair.lua
 FavoritesSync.lua
 InstantLoot.lua
 QuickPost.lua
-SearchFix.lua
