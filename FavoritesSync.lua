@@ -2,9 +2,9 @@
 
 -- Initialize database table for a given key because saved variables may be nil on first load
 local function GetDatabase(key)
-    ItemFlowAccountDB = ItemFlowAccountDB or {}
-    ItemFlowAccountDB[key] = ItemFlowAccountDB[key] or {}
-    return ItemFlowAccountDB[key]
+    SuperAuctionFavoritesDB = SuperAuctionFavoritesDB or {}
+    SuperAuctionFavoritesDB[key] = SuperAuctionFavoritesDB[key] or {}
+    return SuperAuctionFavoritesDB[key]
 end
 
 -- Create a square icon button matching the native favorites search button style

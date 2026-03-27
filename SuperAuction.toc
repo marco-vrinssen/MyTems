@@ -3,9 +3,9 @@
 ## Notes: Expansion filter, spacebar posting, paste and shift-click search, cross-character favorites sync
 ## Author: MIYANKO
 ## Version: 1.0.0
-## IconTexture: 7549124
+## IconTexture: 133061
 
-## SavedVariables: ItemFlowAccountDB
+## SavedVariables: SuperAuctionFavoritesDB
 
 AutoExpacFilter.lua
 FavoritesSync.lua
